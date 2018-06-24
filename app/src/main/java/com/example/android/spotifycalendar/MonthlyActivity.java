@@ -28,7 +28,6 @@ public class MonthlyActivity extends AppCompatActivity {
         refreshCalendar();
     }
 
-
     public void prev_month(View view){
         currentCalendar.add(Calendar.MONTH, -1);
         refreshCalendar();
@@ -57,11 +56,21 @@ public class MonthlyActivity extends AppCompatActivity {
 
     private void populateCalendar(){
         listDay = new ArrayList<>();
-        int maxDays = currentCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int daysInMonth = currentCalendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         int monthNum = currentCalendar.get(Calendar.MONTH);
         int year = currentCalendar.get(Calendar.YEAR);
-        for (int i = 1; i <= maxDays; i++){
-            listDay.add(new Day(new GregorianCalendar(year, monthNum, i), new String[]{"" + i + " event", "do Something else"}));
+        int firstDay = new GregorianCalendar(year, monthNum, 1).get(Calendar.DAY_OF_WEEK);
+
+        int day = 1;
+        int maxCards = firstDay + daysInMonth > 36 ? 42 : 35;
+
+        for (int i = 1; i <= maxCards; i++){
+            if(i >= firstDay && i < firstDay + daysInMonth){
+                listDay.add(new Day(new GregorianCalendar(year, monthNum, day), new String[]{"" + day + " event", "do Something else"}));
+                day++;
+            }else{
+                listDay.add(null);
+            }
         }
 
         RecyclerView month = (RecyclerView) findViewById(R.id.recyclerview_id);

@@ -1,13 +1,14 @@
 package com.example.android.spotifycalendar;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -29,9 +30,25 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onBindViewHolder(DayHolder holder, int position) {
-        holder.tv_date.setText(String.format("%d", mData.get(position).getDayOfMonth()));
-        holder.tv_event.setText(mData.get(position).getEvents()[0]);
+    public void onBindViewHolder(DayHolder holder, final int position) {
+        if(mData.get(position) != null){
+            holder.tv_date.setText(String.format("%d", mData.get(position).getDayOfMonth()));
+            holder.tv_event.setText(mData.get(position).getEvents()[0]);
+            holder.tv_event.setBackgroundColor(Color.parseColor("#00cc00"));
+
+            holder.dayCard.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v){
+                    Intent intent = new Intent(mContext, DayActivity.class);
+                    intent.putExtra("date", String.format("%d", mData.get(position).getDayOfMonth()));
+                    intent.putExtra("events", mData.get(position).getEvents());
+                    mContext.startActivity(intent);
+                }
+            });
+        } else {
+            holder.tv_date.setText("");
+            holder.tv_event.setText("");
+        }
     }
 
     @Override
@@ -42,11 +59,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public static class DayHolder extends RecyclerView.ViewHolder {
         TextView tv_event;
         TextView tv_date;
-
+        CardView dayCard;
         public DayHolder(View dayView){
             super(dayView);
             tv_date = (TextView) dayView.findViewById(R.id.date_number_id);
             tv_event = (TextView) dayView.findViewById(R.id.date_event_id);
+            dayCard = (CardView) itemView.findViewById(R.id.daycard_id);
         }
     }
 }
