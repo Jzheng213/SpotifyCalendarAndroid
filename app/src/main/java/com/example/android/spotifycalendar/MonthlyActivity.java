@@ -9,8 +9,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.async.http.body.JSONObjectBody;
 import com.koushikdutta.ion.Ion;
 
 import org.json.JSONException;
@@ -35,9 +38,10 @@ public class MonthlyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monthly);
-        mappedEvents = CalendarHelper.mapEvents();
+//        mappedEvents = CalendarHelper.mapEvents();
 
         currentCalendar = Calendar.getInstance();
+        getEvents();
         refreshCalendar();
     }
 
@@ -96,17 +100,19 @@ public class MonthlyActivity extends AppCompatActivity {
 
     public void getEvents(){
         Ion.with(this)
-                .load("get","localhost:3000/api/events")
-                .asString()
-                .setCallback(new FutureCallback<String>() {
+                .load("https://spotify-calendar-backend.herokuapp.com/api/events")
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
                      @Override
-                     public void onCompleted(Exception e, String result) {
-                     try {
-                         JSONObject json = new JSONObject(result);
-                         CalendarHelper.mapEvents(json);
-                     } catch (JSONException jsone) {
-                         Log.wtf("help", jsone);
-                     } }
-                });
+                     public void onCompleted(Exception e, JsonObject result) {
+                     if (result != null){
+                             JsonObject json = result;
+                             mappedEvents = CalendarHelper.mapEvents(json);
+                             refreshCalendar();
+                     } else {
+                         Toast.makeText(MonthlyActivity.this, "Failed to connect to server", Toast.LENGTH_SHORT).show();
+                    }}
+                }
+        );
     }
 }
