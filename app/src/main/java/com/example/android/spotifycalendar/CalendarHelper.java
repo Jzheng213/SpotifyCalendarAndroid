@@ -1,5 +1,7 @@
 package com.example.android.spotifycalendar;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +26,13 @@ public class CalendarHelper {
 
         return mappedEvents;
     };
+
+    public static HashMap<String, ArrayList<Event>> mapEvents(JSONObject json){
+        HashMap<String, ArrayList<Event>> mappedEvents = new HashMap<>();
+        JSONObject json2;
+        return mappedEvents;
+    };
+
     public static String CalToKey(Calendar cal){
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH);

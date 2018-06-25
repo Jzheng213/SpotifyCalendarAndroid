@@ -20,9 +20,8 @@ public class Event implements Parcelable{
         this.startTime = startTime;
         this.endTime = endTime;
     }
-    /* methods needed to make events parcelable, so this
-       class can be passed as a element type of an arrayList
-    */
+
+// methods needed to make events parcelable, so this class can be passed as a element type of an arrayList
     public Event(Parcel parcel){
         this.title = parcel.readString();
         this.description = parcel.readString();
@@ -64,7 +63,7 @@ public class Event implements Parcelable{
             return new Event[size];
         }
     };
-    // parcelable end
+// parcelable end
 
     public String getTitle() {
         return this.title;

@@ -77,4 +77,6 @@ public class DayActivity extends AppCompatActivity {
             return view;
         }
     }
+
+
 }

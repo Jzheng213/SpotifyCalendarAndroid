@@ -1,13 +1,20 @@
 package com.example.android.spotifycalendar;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
@@ -29,6 +36,7 @@ public class MonthlyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monthly);
         mappedEvents = CalendarHelper.mapEvents();
+
         currentCalendar = Calendar.getInstance();
         refreshCalendar();
     }
@@ -84,5 +92,21 @@ public class MonthlyActivity extends AppCompatActivity {
 
         month.setLayoutManager(new GridLayoutManager(this, 7));
         month.setAdapter(monthlyAdapter);
+    }
+
+    public void getEvents(){
+        Ion.with(this)
+                .load("get","localhost:3000/api/events")
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                     @Override
+                     public void onCompleted(Exception e, String result) {
+                     try {
+                         JSONObject json = new JSONObject(result);
+                         CalendarHelper.mapEvents(json);
+                     } catch (JSONException jsone) {
+                         Log.wtf("help", jsone);
+                     } }
+                });
     }
 }
