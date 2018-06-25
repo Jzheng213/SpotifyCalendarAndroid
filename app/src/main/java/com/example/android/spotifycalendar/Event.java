@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -19,7 +20,9 @@ public class Event implements Parcelable{
         this.startTime = startTime;
         this.endTime = endTime;
     }
-
+    /* methods needed to make events parcelable, so this
+       class can be passed as a element type of an arrayList
+    */
     public Event(Parcel parcel){
         this.title = parcel.readString();
         this.description = parcel.readString();
@@ -61,6 +64,7 @@ public class Event implements Parcelable{
             return new Event[size];
         }
     };
+    // parcelable end
 
     public String getTitle() {
         return this.title;

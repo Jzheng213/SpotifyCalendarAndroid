@@ -9,24 +9,30 @@ public class TestAPI {
     private static Calendar endTime = Calendar.getInstance();
     public static ArrayList<Event> seedEvents(){
         ArrayList<Event> events = new ArrayList<>();
-        startTime.set(2018, 6, 3);
-        endTime.set(2018, 6, 3);
+        startTime.set(2018, Calendar.JUNE, 3);
+        endTime.set(2018, Calendar.JUNE, 3);
 
         modifyTime(startTime, 8, 15);
         modifyTime(endTime, 9, 15);
-        events.add(new Event("Do Laundry", "can't have dirty laundry", startTime, endTime));
+        events.add(new Event("Do Laundry", "can't have dirty laundry", (Calendar)startTime.clone(), (Calendar) endTime.clone()));
 
         modifyTime(startTime, 10, 15);
         modifyTime(endTime, 13, 15);
-        events.add(new Event("Shopping", "because gots money", startTime, endTime));
+        events.add(new Event("Shopping", "because gots money", (Calendar)startTime.clone(), (Calendar) endTime.clone()));
 
         modifyTime(startTime, 12, 13);
         modifyTime(endTime, 23, 15);
-        events.add(new Event("Walk Dog", "Lassy will poop in the house", startTime, endTime));
+        events.add(new Event("Walk Dog", "Lassy will poop in the house", (Calendar)startTime.clone(), (Calendar) endTime.clone()));
 
         modifyTime(startTime, 14, 15);
         modifyTime(endTime, 15, 40);
-        events.add(new Event("Call Insurance", "reduce insurance cost", startTime, endTime));
+        events.add(new Event("Call Insurance", "reduce insurance cost", (Calendar)startTime.clone(), (Calendar) endTime.clone()));
+
+        startTime.set(2018, 5, 8);
+        endTime.set(2018, 5, 8);
+        modifyTime(startTime, 14, 15);
+        modifyTime(endTime, 15, 40);
+        events.add(new Event("Call Insurance", "reduce insurance cost", (Calendar)startTime.clone(), (Calendar) endTime.clone()));
 
         return events;
     }

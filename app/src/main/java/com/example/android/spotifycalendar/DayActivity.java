@@ -15,6 +15,8 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 import java.lang.annotation.Target;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class DayActivity extends AppCompatActivity {
@@ -63,6 +65,14 @@ public class DayActivity extends AppCompatActivity {
             title.setText(Events.get(i).getTitle());
             TextView description = (TextView) view.findViewById(R.id.event_description_id);
             description.setText(Events.get(i).getDescription());
+
+            TextView startTime = (TextView) view.findViewById(R.id.start_time_id);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+
+            startTime.setText(dateFormat.format(Events.get(i).getStartTime().getTime()));
+
+            TextView endTime = (TextView) view.findViewById(R.id.end_time_id);
+            endTime.setText(dateFormat.format(Events.get(i).getEndTime().getTime()));
 
             return view;
         }
