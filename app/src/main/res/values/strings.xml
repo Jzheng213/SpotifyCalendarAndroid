@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SpotifyCalendar</string>
+    <string name="title_activity_apitest">APITestActivity</string>
 </resources>
