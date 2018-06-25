@@ -15,11 +15,12 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 
 public class DayActivity extends AppCompatActivity {
 
     private String TargetDate;
-    private String[] Events;
+    private ArrayList<Event> Events;
     private TextView tvDate;
 
     @Override
@@ -29,7 +30,7 @@ public class DayActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         TargetDate = intent.getStringExtra("date");
-        Events = intent.getExtras().getStringArray("events");
+        Events = (ArrayList<Event>) intent.getExtras().getSerializable("events");
 
         tvDate = (TextView) findViewById(R.id.daycard_date_id);
         tvDate.setText(TargetDate);
@@ -41,7 +42,7 @@ public class DayActivity extends AppCompatActivity {
     class EventsAdapter extends BaseAdapter{
         @Override
         public int getCount() {
-            return Events.length;
+            return Events != null ? Events.size() : 0;
         }
 
         @Override
@@ -58,8 +59,10 @@ public class DayActivity extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             view = getLayoutInflater().inflate(R.layout.day_event_item,null);
 
+            TextView title = (TextView) view.findViewById(R.id.event_title_id);
+            title.setText(Events.get(i).getTitle());
             TextView description = (TextView) view.findViewById(R.id.event_description_id);
-            description.setText(Events[i]);
+            description.setText(Events.get(i).getDescription());
 
             return view;
         }

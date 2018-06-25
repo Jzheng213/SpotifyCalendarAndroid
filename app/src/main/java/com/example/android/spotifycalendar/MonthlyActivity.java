@@ -10,20 +10,25 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.lang.reflect.Array;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class MonthlyActivity extends AppCompatActivity {
     private Calendar currentCalendar;
-    List<Day> listDay;
-    @Override
+    private List<Day> listDay;
+
+    private HashMap<String, ArrayList<Event>> mappedEvents = new HashMap<>();
+
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monthly);
-
+        mappedEvents = CalendarHelper.mapEvents();
         currentCalendar = Calendar.getInstance();
         refreshCalendar();
     }
@@ -48,7 +53,6 @@ public class MonthlyActivity extends AppCompatActivity {
         int year = currentCalendar.get(Calendar.YEAR);
 
         TextView monthTitle = (TextView) findViewById(R.id.month_id);
-
         DateFormatSymbols dfs = new DateFormatSymbols();
         String[] months = dfs.getMonths();
         monthTitle.setText(String.format("%s %d", months[monthNum], year));
@@ -66,7 +70,9 @@ public class MonthlyActivity extends AppCompatActivity {
 
         for (int i = 1; i <= maxCards; i++){
             if(i >= firstDay && i < firstDay + daysInMonth){
-                listDay.add(new Day(new GregorianCalendar(year, monthNum, day), new String[]{"" + day + " event", "do Something else"}));
+                GregorianCalendar currentDay = new GregorianCalendar(year, monthNum, day);
+                String key = CalendarHelper.CalToKey(currentDay);
+                listDay.add(new Day(currentDay, mappedEvents.get(key)));
                 day++;
             }else{
                 listDay.add(null);
