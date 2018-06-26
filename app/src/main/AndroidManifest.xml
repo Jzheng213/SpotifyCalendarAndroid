@@ -17,6 +17,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".DayActivity" />
+        <activity android:name=".PostActivity"></activity>
     </application>
 
 </manifest>

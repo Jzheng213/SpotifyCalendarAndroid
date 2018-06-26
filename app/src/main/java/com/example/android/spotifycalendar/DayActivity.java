@@ -5,17 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.lang.annotation.Target;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -78,5 +71,8 @@ public class DayActivity extends AppCompatActivity {
         }
     }
 
-
+    public void createNewTask (View view) {
+        Intent intent = new Intent(this, PostActivity.class);
+        startActivity(intent);
+    }
 }

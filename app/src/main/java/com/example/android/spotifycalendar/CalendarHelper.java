@@ -4,10 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import org.json.JSONObject;
-
-import java.lang.reflect.Array;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,23 +12,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class CalendarHelper {
-
-    public static HashMap<String, ArrayList<Event>> mapEvents(){
-        HashMap<String, ArrayList<Event>> mappedEvents = new HashMap<>();
-        ArrayList<Event> events = TestAPI.seedEvents();
-
-        for(Event event: events){
-            Calendar startTime = event.getStartTime();
-            String key = CalToKey(startTime);
-            if (mappedEvents.containsKey(key)) {
-                mappedEvents.get(key).add(event);
-            }else{
-                mappedEvents.put(key,new ArrayList<Event>(Arrays.asList(event)));
-            }
-        }
-
-        return mappedEvents;
-    };
 
     public static HashMap<String, ArrayList<Event>> mapEvents(JsonObject json){
         HashMap<String, ArrayList<Event>> mappedEvents = new HashMap<>();
