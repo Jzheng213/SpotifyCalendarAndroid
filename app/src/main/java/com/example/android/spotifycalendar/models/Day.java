@@ -1,4 +1,4 @@
-package com.example.android.spotifycalendar;
+package com.example.android.spotifycalendar.models;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;

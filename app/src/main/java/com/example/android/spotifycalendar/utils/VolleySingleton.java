@@ -1,4 +1,4 @@
-package com.example.android.spotifycalendar;
+package com.example.android.spotifycalendar.utils;
 
 import android.content.Context;
 

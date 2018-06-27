@@ -1,21 +1,29 @@
-package com.example.android.spotifycalendar;
+package com.example.android.spotifycalendar.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-public class Event implements Parcelable, Serializable {
+public class Event implements Parcelable {
+    private Integer id;
     private String title;
     private String description;
     private Calendar startTime;
     private Calendar endTime;
 
-
     public Event(String title, String description, Calendar startTime, Calendar endTime) {
+        this.id = null;
+        this.title = title;
+        this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public Event(Integer id, String title, String description, Calendar startTime, Calendar endTime) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.startTime = startTime;
@@ -24,6 +32,7 @@ public class Event implements Parcelable, Serializable {
 
 // methods needed to make events parcelable, so this class can be passed as a element type of an arrayList
     public Event(Parcel parcel){
+        this.id = parcel.readInt();
         this.title = parcel.readString();
         this.description = parcel.readString();
 
@@ -45,6 +54,7 @@ public class Event implements Parcelable, Serializable {
 
     @Override
     public void writeToParcel(Parcel dest, int i) {
+        dest.writeInt(id);
         dest.writeString(title);
         dest.writeString(description);
         dest.writeLong(startTime.getTimeInMillis());
@@ -78,31 +88,8 @@ public class Event implements Parcelable, Serializable {
         return startTime;
     }
 
-    public void setStartTime(Calendar startTime) {
-        this.startTime = startTime;
-    }
-
     public Calendar getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Calendar endTime) {
-        this.endTime = endTime;
-    }
-
-    private boolean validateSameDay(){
-        return  startTime.get(Calendar.YEAR) == endTime.get(Calendar.YEAR) &&
-                startTime.get(Calendar.MONTH) == endTime.get(Calendar.MONTH) &&
-                startTime.get(Calendar.DAY_OF_MONTH) == endTime.get(Calendar.DAY_OF_MONTH);
-    }
-
-    public boolean save(){
-        if(validateSameDay()){
-            //TODO: save to database
-            return true;
-        } else {
-            //TODO: reject
-            return false;
-        }
-    }
 }

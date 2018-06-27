@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.spotifycalendar.models.Day;
+import com.example.android.spotifycalendar.models.Event;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,9 +69,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         CardView dayCard;
         public DayHolder(View dayView){
             super(dayView);
-            tv_date = (TextView) dayView.findViewById(R.id.date_number_id);
-            tv_event = (TextView) dayView.findViewById(R.id.date_event_id);
-            dayCard = (CardView) itemView.findViewById(R.id.daycard_id);
+            tv_date = dayView.findViewById(R.id.date_number_id);
+            tv_event = dayView.findViewById(R.id.date_event_id);
+            dayCard = itemView.findViewById(R.id.daycard_id);
         }
     }
 }

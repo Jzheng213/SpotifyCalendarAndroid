@@ -11,6 +11,11 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.android.spotifycalendar.models.Day;
+import com.example.android.spotifycalendar.models.Event;
+import com.example.android.spotifycalendar.utils.CalendarHelper;
+import com.example.android.spotifycalendar.utils.VolleySingleton;
+
 import org.json.JSONObject;
 
 import java.text.DateFormatSymbols;
@@ -42,6 +47,7 @@ public class MonthlyActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        getEvents();
         refreshCalendar();
     }
 
