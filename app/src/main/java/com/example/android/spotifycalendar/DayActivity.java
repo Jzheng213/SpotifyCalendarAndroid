@@ -25,6 +25,7 @@ public class DayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_day);
 
+
         Intent intent = getIntent();
         TargetDate = intent.getStringExtra("date");
         Events = (ArrayList<Event>) intent.getExtras().getSerializable("events");
@@ -32,6 +33,7 @@ public class DayActivity extends AppCompatActivity {
         tvDate = findViewById(R.id.daycard_date_id);
         tvDate.setText(TargetDate);
         refreshList();
+
     }
 
     public void refreshList(){
@@ -94,5 +96,10 @@ public class DayActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed(){
+        setResult(RESULT_CANCELED);
+        finish();
+    }
 
 }

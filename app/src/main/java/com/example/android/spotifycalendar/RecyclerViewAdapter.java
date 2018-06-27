@@ -37,15 +37,28 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(DayHolder holder, final int position) {
         if(mData.get(position) != null){
             holder.tv_date.setText(String.format("%d", mData.get(position).getDayOfMonth()));
+            ArrayList<TextView> tv_events = new ArrayList<>();
+            tv_events.add(holder.tv_event1);
+            tv_events.add(holder.tv_event2);
+            tv_events.add(holder.tv_event3);
             ArrayList<Event> events = mData.get(position).getEvents();
-            if(events.size() > 0){
-                holder.tv_event.setText(mData.get(position).getEvents().get(0).getTitle());
-                holder.tv_event.setBackgroundColor(Color.parseColor("#00cc00"));
+
+            if(events.size() > 0) {
+                for (int i = 0; i < Math.min(events.size(), tv_events.size()); i++) {
+                    tv_events.get(i).setText(events.get(i).getTitle());
+                    tv_events.get(i).setBackgroundColor(Color.parseColor("#c6ecff"));
+                }
+
+                if (events.size() > 3) {
+                    holder.tv_eventExtra.setText("...");
+                    holder.tv_count.setText(String.format("+ %d", events.size()));
+                    holder.tv_count.setVisibility(View.VISIBLE);
+                }
             }
 
-            holder.dayCard.setOnClickListener(new View.OnClickListener(){
+            holder.dayCard.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v){
+                public void onClick(View v) {
                     Intent intent = new Intent(mContext, DayActivity.class);
                     intent.putExtra("date", mData.get(position).getFormattedDate());
                     intent.putExtra("events", mData.get(position).getEvents());
@@ -54,7 +67,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             });
         } else {
             holder.tv_date.setText("");
-            holder.tv_event.setText("");
+            holder.tv_event1.setText("");
+            holder.tv_event2.setText("");
+            holder.tv_event3.setText("");
+            holder.tv_eventExtra.setText("");
         }
     }
 
@@ -64,13 +80,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public static class DayHolder extends RecyclerView.ViewHolder {
-        TextView tv_event;
-        TextView tv_date;
+        TextView tv_event1, tv_event2, tv_event3, tv_eventExtra;
+        TextView tv_date, tv_count;
         CardView dayCard;
         public DayHolder(View dayView){
             super(dayView);
+            tv_count = dayView.findViewById(R.id.task_count_id);
             tv_date = dayView.findViewById(R.id.date_number_id);
-            tv_event = dayView.findViewById(R.id.date_event_id);
+            tv_event1 = dayView.findViewById(R.id.date_event_1_id);
+            tv_event2 = dayView.findViewById(R.id.date_event_2_id);
+            tv_event3 = dayView.findViewById(R.id.date_event_3_id);
+
+            tv_eventExtra = dayView.findViewById(R.id.date_event_extra_id);
             dayCard = itemView.findViewById(R.id.daycard_id);
         }
     }

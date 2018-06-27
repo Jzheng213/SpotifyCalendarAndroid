@@ -9,9 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MonthlyActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait">
+        <activity android:name=".MonthlyActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,9 +17,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".DayActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MonthlyActivity"/>
         <activity android:name=".EventFormActivity"
-            android:parentActivityName=".DayActivity"></activity>
+            android:screenOrientation="portrait"
+            ></activity>
     </application>
 
 </manifest>

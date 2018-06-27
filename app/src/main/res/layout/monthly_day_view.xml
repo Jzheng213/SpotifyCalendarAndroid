@@ -2,32 +2,88 @@
 <android.support.v7.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/daycard_id"
-    android:clickable="true"
     android:foreground="?android:attr/selectableItemBackground"
     android:layout_height="100dp"
-    android:layout_width="60dp"
+    android:layout_width="wrap_content"
     android:padding="5dp">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/date_number_id"
-            android:layout_marginLeft="5dp"
-            android:textSize="28dp"
-            android:layout_width="match_parent"
+            android:layout_width="47dp"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
+            android:layout_marginLeft="5dp"
             android:padding="2dp"
-            android:text="1"/>
+            android:text="1"
+            android:textSize="28dp" />
 
         <TextView
-            android:id="@+id/date_event_id"
-            android:textSize="10dp"
+            android:id="@+id/date_event_1_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="2dp"/>
-    </LinearLayout>
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:ellipsize="end"
+            android:layout_margin="1dp"
+            android:maxLines="1"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/date_event_2_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/date_event_1_id"
+            android:layout_margin="1dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/date_event_3_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/date_event_2_id"
+            android:layout_margin="1dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/date_event_extra_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:padding="2px"
+            android:gravity="top"
+            android:layout_margin="1dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="20dp"
+            android:textColor="@color/lightGrey"/>
+
+        <TextView
+            android:id="@+id/task_count_id"
+            android:textColor="@color/cardview_light_background"
+            android:background="@color/colorPrimaryDark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="0dp"
+            android:visibility="invisible"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:textSize="7dp"
+            android:paddingRight="2dp"
+            android:gravity="right"
+             />
+    </RelativeLayout>
 </android.support.v7.widget.CardView>
