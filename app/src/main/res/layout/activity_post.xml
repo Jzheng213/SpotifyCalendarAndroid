@@ -6,6 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".EventFormActivity">
 
+    <Button
+        android:id="@+id/cancel_submission"
+        android:layout_width="138dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/post_title_id"
+        android:layout_alignTop="@+id/add_task"
+        android:onClick="cancel"
+        android:text="Cancel" />
+
     <EditText
         android:id="@+id/post_title_id"
         android:layout_width="336dp"
@@ -61,11 +70,12 @@
 
     <Button
         android:id="@+id/add_task"
-        android:layout_width="219dp"
+        android:layout_width="162dp"
         android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/post_title_id"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="23dp"
+        android:layout_marginBottom="14dp"
         android:onClick="submit"
         android:text="Submit" />
+
 </RelativeLayout>

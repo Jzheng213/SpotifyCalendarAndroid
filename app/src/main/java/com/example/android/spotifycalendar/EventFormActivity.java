@@ -30,10 +30,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class EventFormActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
-
+    private int mode;
+    final private int PUT_MODE = 0;
+    final private int PATCH_MODE = 1;
+    private int id;
     private TextView title, description;
     private String currentDateString;
     private Calendar startCal, endCal;
@@ -41,13 +45,14 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
     private boolean startSelected;
     private DateFormat dfs = new SimpleDateFormat("EEE, MMM, dd yyyy hh:mm a");
     private DateFormat dayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         Intent intent = getIntent();
         currentDateString = intent.getStringExtra("currentDate");
-
+        mode = intent.getIntExtra("mode", 0);
         try{
             Date currentDate = dayFormat.parse(currentDateString);
 
@@ -61,14 +66,14 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
             startTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    beforeDateSet(true);
+                    beforeDateSet(startCal);
                 }
             });
 
             endTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    beforeDateSet(false);
+                    beforeDateSet(endCal);
                 }
             });
 
@@ -84,7 +89,7 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
         startCal = Calendar.getInstance();
         endCal = Calendar.getInstance();
 
-        int currentHour = startCal.get(Calendar.HOUR);
+        int currentHour = startCal.get(Calendar.HOUR_OF_DAY);
         if (startCal.get(Calendar.MINUTE) != 0) currentHour++;
 
         startCal.setTime(currentDate);
@@ -97,13 +102,15 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
         endTime.setText(dfs.format(endCal.getTime()));
     }
 
-    private void beforeDateSet(boolean startSelected){
-        Calendar c = Calendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
 
-        this.startSelected = startSelected;
+
+    private void beforeDateSet(Calendar cal){
+
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        this.startSelected = startCal == cal;
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(EventFormActivity.this, EventFormActivity.this, year, month, day);
         datePickerDialog.show();
@@ -111,6 +118,7 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
 
     public void onDateSet(DatePicker datePicker, int year, int month, int day){
         Calendar targetCal;
+
         if (startSelected) {
             targetCal = startCal;
         } else {
@@ -119,9 +127,8 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
 
         targetCal.set(year, month, day);
 
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
+        int hour = targetCal.get(Calendar.HOUR_OF_DAY);
+        int minute = targetCal.get(Calendar.MINUTE);
         TimePickerDialog timePickerDialog = new TimePickerDialog( EventFormActivity.this, EventFormActivity.this, hour, minute, false);
         timePickerDialog.show();
     }
@@ -140,18 +147,14 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
             targetView = (TextView) findViewById(R.id.end_time_id);
         }
 
-        targetCal.set(Calendar.HOUR, hour);
+        targetCal.set(Calendar.HOUR_OF_DAY, hour);
         targetCal.set(Calendar.MINUTE, min);
         targetView.setText(dfs.format(targetCal.getTime()));
     }
 
-    public void submit(View view){
-        postEvent();
-    }
-
     private JSONObject eventJsonBuilder(){
-        TextView title = (TextView) findViewById(R.id.post_title_id);
-        TextView description = (TextView) findViewById(R.id.post_description_id);
+        TextView title = findViewById(R.id.post_title_id);
+        TextView description = findViewById(R.id.post_description_id);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         JSONObject json = new JSONObject();
         JSONObject event = new JSONObject();
@@ -168,6 +171,8 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
 
         return json;
     }
+
+
 
     private boolean validateAll(){
         return  validateNotEmptyString("Title", title) &&
@@ -200,14 +205,12 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
         return true;
     }
 
-    private boolean postEvent(){
-        final Intent goToMonthly = new Intent(this, MonthlyActivity.class);
-        String url = "https://spotify-calendar-backend.herokuapp.com/api/events";
+    private boolean sendEvent(int method, String url){
 
         if(!validateAll()) return false;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                Request.Method.POST,
+                method,
                 url,
                 eventJsonBuilder(),
                 new Response.Listener<JSONObject>() {
@@ -217,7 +220,7 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
                 Toast.makeText(EventFormActivity.this, "event added", Toast.LENGTH_SHORT).show();
                 Intent resultIntent = new Intent();
                 try{
-                    Event event = JSONHelper.createEventObject(response.getJSONObject("events"));
+                    Event event = JSONHelper.createEventObject(response.getJSONObject("event"));
                     resultIntent.putExtra("event", event);
                     setResult(RESULT_OK, resultIntent);
                     finish();
@@ -248,6 +251,31 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
 
         VolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
         return true;
+    }
+
+
+    @Override
+    public void onBackPressed(){
+        cancelSubmit();
+    }
+
+    public void cancel(View view) {
+        cancelSubmit();
+    }
+
+    private void cancelSubmit(){
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+    public void submit(View view){
+        String url = "https://spotify-calendar-backend.herokuapp.com/api/events";
+        switch (mode){
+            case PUT_MODE:
+                sendEvent(Request.Method.PUT, url);
+            case PATCH_MODE:
+                url = String.format(Locale.US, "%s/%d", url, id);
+                sendEvent(Request.Method.PUT, url);
+        }
     }
 
 }

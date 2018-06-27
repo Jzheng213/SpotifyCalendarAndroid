@@ -28,7 +28,9 @@ public class DayActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         TargetDate = intent.getStringExtra("date");
-        Events = (ArrayList<Event>) intent.getExtras().getSerializable("events");
+        if (intent.getExtras() != null){
+            Events = (ArrayList<Event>) intent.getExtras().getSerializable("events");
+        }
 
         tvDate = findViewById(R.id.daycard_date_id);
         tvDate.setText(TargetDate);
@@ -41,6 +43,8 @@ public class DayActivity extends AppCompatActivity {
         EventsAdapter eventsAdapter = new EventsAdapter();
         eventListView.setAdapter(eventsAdapter);
     }
+
+
 
     class EventsAdapter extends BaseAdapter{
         @Override
@@ -96,10 +100,5 @@ public class DayActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed(){
-        setResult(RESULT_CANCELED);
-        finish();
-    }
 
 }
