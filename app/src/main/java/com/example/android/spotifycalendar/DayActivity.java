@@ -1,14 +1,21 @@
 package com.example.android.spotifycalendar;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.example.android.spotifycalendar.models.Event;
 
 import java.text.SimpleDateFormat;
@@ -38,10 +45,67 @@ public class DayActivity extends AppCompatActivity {
 
     }
 
+
+    SwipeMenuCreator creator = new SwipeMenuCreator() {
+
+        @Override
+        public void create(SwipeMenu menu) {
+            // create "open" item
+            SwipeMenuItem openItem = new SwipeMenuItem(
+                    getApplicationContext());
+            // set item background
+            openItem.setBackground(new ColorDrawable(Color.rgb(0xcc, 0x99,
+                    0x00)));
+            // set item width
+            openItem.setWidth(200);
+            // set item title
+            openItem.setTitle("Edit");
+            // set item title fontsize
+            openItem.setTitleSize(18);
+            // set item title font color
+            openItem.setTitleColor(Color.WHITE);
+            // add to menu
+            menu.addMenuItem(openItem);
+
+            // create "delete" item
+            SwipeMenuItem deleteItem = new SwipeMenuItem(
+                    getApplicationContext());
+            // set item background
+            deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
+                    0x3F, 0x25)));
+            // set item width
+            deleteItem.setWidth(250);
+            deleteItem.setTitle("Delete");
+            deleteItem.setTitleSize(18);
+            deleteItem.setTitleColor(Color.WHITE);
+            // set a icon
+            // add to menu
+            menu.addMenuItem(deleteItem);
+        }
+    };
+
     public void refreshList(){
-        ListView eventListView = findViewById(R.id.daycard_events_id);
+        SwipeMenuListView eventListView = findViewById(R.id.daycard_events_id);
         EventsAdapter eventsAdapter = new EventsAdapter();
         eventListView.setAdapter(eventsAdapter);
+        eventListView.setMenuCreator(creator);
+
+        eventListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                switch (index) {
+                    case 0:
+                        Log.d("swipe", "onMenuItemClick: clicked item " + index);
+                        break;
+                    case 1:
+                        Log.d("swipe", "onMenuItemClick: clicked item " + index);
+                        break;
+                }
+                // false : close the menu; true : not close the menu
+                return false;
+            }
+        });
+
     }
 
 
