@@ -4,13 +4,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import org.json.JSONObject;
 
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -20,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MonthlyActivity extends AppCompatActivity {
+
+    private JsonObjectRequest jsonObjectRequest;
+
     private Calendar currentCalendar;
     private List<Day> listDay;
 
@@ -32,6 +36,12 @@ public class MonthlyActivity extends AppCompatActivity {
 
         currentCalendar = Calendar.getInstance();
         getEvents();
+        refreshCalendar();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
         refreshCalendar();
     }
 
@@ -89,20 +99,24 @@ public class MonthlyActivity extends AppCompatActivity {
     }
 
     public void getEvents(){
-        Ion.with(this)
-                .load("https://spotify-calendar-backend.herokuapp.com/api/events")
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                     @Override
-                     public void onCompleted(Exception e, JsonObject result) {
-                     if (result != null){
-                             JsonObject json = result;
-                             mappedEvents = CalendarHelper.mapEvents(json);
-                             refreshCalendar();
-                     } else {
-                         Toast.makeText(MonthlyActivity.this, "Failed to connect to server", Toast.LENGTH_SHORT).show();
-                    }}
+        String url = "https://spotify-calendar-backend.herokuapp.com/api/events";
+
+        jsonObjectRequest = new JsonObjectRequest(url, null,
+            new Response.Listener<JSONObject>(){
+                @Override
+                public void onResponse(JSONObject response){
+                    JSONObject json = response;
+                    mappedEvents = CalendarHelper.mapEvents(json);
+                    refreshCalendar();
                 }
-        );
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                Log.e("Volley","Error");
+            }
+        });
+
+        VolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
     }
+
 }

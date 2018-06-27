@@ -3,15 +3,17 @@ package com.example.android.spotifycalendar;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-public class Event implements Parcelable{
+public class Event implements Parcelable, Serializable {
     private String title;
     private String description;
     private Calendar startTime;
     private Calendar endTime;
+
 
     public Event(String title, String description, Calendar startTime, Calendar endTime) {
         this.title = title;
