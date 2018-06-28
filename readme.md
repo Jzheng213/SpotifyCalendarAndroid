@@ -35,13 +35,12 @@
 - [x] PUT/events/:id, updates an existing event
 
 # Monthly View
-![Alt text](https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/monthly.png "Optional Title")
 
+<img src="https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/monthly.png" width="400">
 # Daily View
-![Alt text](https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/Daily.png "Optional Title")
-
+<img src="https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/Daily.png" width="400">
 # Show Page
-![Alt text](https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/Show.png "Optional Title")
+<img src="https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/Show.png" width="400">
 # TODO
 - [ ] Deploy to google store
 - [ ] Handle events spanning multiple days
