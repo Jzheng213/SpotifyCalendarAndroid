@@ -46,6 +46,7 @@
 # TODO
 - [ ] Deploy to google store
 - [ ] Handle events spanning multiple days
+- [ ] Sort daily items in chronological order
 - [ ] Have a local cache to save events for offline usage
 - [ ] Refactor: use android replace string with android string resources
 - [ ] Refactor: code modularize & follow OOP principles
