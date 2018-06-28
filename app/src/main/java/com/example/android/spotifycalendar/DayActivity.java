@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baoyz.swipemenulistview.SwipeMenu;
 import com.baoyz.swipemenulistview.SwipeMenuCreator;
@@ -48,56 +50,17 @@ public class DayActivity extends AppCompatActivity {
 
     }
 
-
-    SwipeMenuCreator creator = new SwipeMenuCreator() {
-
-        @Override
-        public void create(SwipeMenu menu) {
-            SwipeMenuItem editItem = new SwipeMenuItem(
-                    getApplicationContext());
-            editItem.setBackground(new ColorDrawable(Color.rgb(0xcc, 0x99,
-                    0x00)));
-            editItem.setWidth(300);
-            editItem.setTitle("Edit");
-            editItem.setTitleSize(18);
-            editItem.setTitleColor(Color.WHITE);
-
-            SwipeMenuItem deleteItem = new SwipeMenuItem(
-                    getApplicationContext());
-            deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
-                    0x3F, 0x25)));
-            deleteItem.setWidth(300);
-            deleteItem.setTitle("Delete");
-            deleteItem.setTitleSize(18);
-            deleteItem.setTitleColor(Color.WHITE);
-
-            menu.addMenuItem(editItem);
-            menu.addMenuItem(deleteItem);
-        }
-    };
-
     public void refreshList(){
-        SwipeMenuListView eventListView = findViewById(R.id.daycard_events_id);
+        ListView eventListView = findViewById(R.id.daycard_events_id);
         EventsAdapter eventsAdapter = new EventsAdapter();
         eventListView.setAdapter(eventsAdapter);
-        eventListView.setMenuCreator(creator);
-
-        eventListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+        
+        eventListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                switch (index) {
-                    case 0:
-                        updateTask(position);
-                        break;
-                    case 1:
-                        deleteTask(position);
-                        break;
-                }
-                // false : close the menu; true : not close the menu
-                return false;
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Toast.makeText(DayActivity.this, Events.get(position).getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
 
