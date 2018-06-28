@@ -1,6 +1,8 @@
 package com.example.android.spotifycalendar.models;
 
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -24,11 +26,8 @@ public class Day {
         return date.get(Calendar.DATE);
     }
     public String getFormattedDate(){
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        String day = dfs.getShortWeekdays()[date.get(Calendar.DAY_OF_WEEK)];
-        String month = dfs.getShortMonths()[monthNum];
-
-        return String.format("%s, %s %d, %d", day, month, dayNum, year);
+        DateFormat dayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+        return dayFormat.format(date.getTime());
     }
 
     public Calendar getDate() {
@@ -47,16 +46,6 @@ public class Day {
         }
     }
 
-    public Calendar beginningOfDay() {
-        return date;
-    }
-
-    public Calendar endOfDay(){
-        Calendar eod = new GregorianCalendar(year, monthNum, dayNum);
-        eod.add(Calendar.DAY_OF_MONTH, 1);
-        eod.add(Calendar.MILLISECOND, -1);
-        return eod;
-    }
     public void addEvent(Event event) {
         //TODO: append to event list
     }

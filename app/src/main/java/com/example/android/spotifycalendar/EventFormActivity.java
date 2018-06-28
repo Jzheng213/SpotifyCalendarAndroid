@@ -190,7 +190,7 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
     }
 
 
-
+    //TODO: move Validations to Event class
     private boolean validateAll(){
         return  validateNotEmptyString("Title", title) &&
                 validateEndDateAfterStartDate() &&
