@@ -193,7 +193,6 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
 
     private boolean validateAll(){
         return  validateNotEmptyString("Title", title) &&
-                validateNotEmptyString("Description", description) &&
                 validateEndDateAfterStartDate() &&
                 validateNotSameDay();
     }
