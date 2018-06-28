@@ -12,7 +12,8 @@
 - [x] the UI should have 4 rows 7 boxes
 - [x] The application should communicate with an API backend using JSON
 
-* Refresh app as needed. (Slow response due to heroku intial response time)
+* Refresh app as needed. (Slow response due to heroku intial response time, shuts down after lack of usage)
+  * *Potentially resolved* Set a reoccuring pinger to keep the website running.
 
 ## Bonus
 - [x] Switch between months
