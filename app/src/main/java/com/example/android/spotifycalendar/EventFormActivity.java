@@ -35,12 +35,13 @@ import java.util.Map;
 
 public class EventFormActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
     private int mode;
-    final private int PUT_MODE = 0;
-    final private int PATCH_MODE = 1;
-    private int id;
+    final public static int POST_MODE = 0;
+    final public static int PATCH_MODE = 1;
+    private int id, position;
     private TextView title, description;
     private String currentDateString;
     private Calendar startCal, endCal;
+    private Event event;
     TextView startTime, endTime;
     private boolean startSelected;
     private DateFormat dfs = new SimpleDateFormat("EEE, MMM, dd yyyy hh:mm a");
@@ -51,36 +52,43 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         Intent intent = getIntent();
-        currentDateString = intent.getStringExtra("currentDate");
         mode = intent.getIntExtra("mode", 0);
-        try{
-            Date currentDate = dayFormat.parse(currentDateString);
+        if (mode == PATCH_MODE) event = intent.getParcelableExtra("event");
 
-            title = findViewById(R.id.post_title_id);
-            description = findViewById(R.id.post_description_id);
-            startTime = findViewById(R.id.start_time_id);
-            endTime = findViewById(R.id.end_time_id);
+        title = findViewById(R.id.post_title_id);
+        description = findViewById(R.id.post_description_id);
+        startTime = findViewById(R.id.start_time_id);
+        endTime = findViewById(R.id.end_time_id);
+
+        if(mode == POST_MODE){
+            currentDateString = intent.getStringExtra("currentDate");
+            Date currentDate;
+            try{
+                currentDate = dayFormat.parse(currentDateString);
+            } catch(ParseException pe){
+                Log.e("parsing_current_date", "failed parsing: " + pe.getMessage());
+                currentDate = Calendar.getInstance().getTime();
+            }
 
             setInitialTime(currentDate);
-
-            startTime.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    beforeDateSet(startCal);
-                }
-            });
-
-            endTime.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    beforeDateSet(endCal);
-                }
-            });
-
-        } catch(ParseException pe){
-            Log.e("parsing_current_date", "failed parsing: " + pe.getMessage());
-            finish();
+        } else {
+            position = intent.getIntExtra("position", -1);
+            setEntries();
         }
+
+        startTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                beforeDateSet(startCal);
+            }
+        });
+        endTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                beforeDateSet(endCal);
+            }
+        });
+
 
     }
 
@@ -102,7 +110,16 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
         endTime.setText(dfs.format(endCal.getTime()));
     }
 
+    private void setEntries(){
+        id = event.getID();
+        title.setText(event.getTitle());
+        description.setText(event.getDescription());
+        startCal = event.getStartTime();
+        endCal = event.getEndTime();
 
+        startTime.setText(dfs.format(startCal.getTime()));
+        endTime.setText(dfs.format(endCal.getTime()));
+    }
 
     private void beforeDateSet(Calendar cal){
 
@@ -216,13 +233,16 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
                 new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                String toastResponse = (mode == POST_MODE) ? "event added" : "event updated";
                 Log.e("post_request", "successful request");
-                Toast.makeText(EventFormActivity.this, "event added", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EventFormActivity.this, toastResponse, Toast.LENGTH_SHORT).show();
                 Intent resultIntent = new Intent();
                 try{
                     Event event = JSONHelper.createEventObject(response.getJSONObject("event"));
                     resultIntent.putExtra("event", event);
+                    if(position != -1) resultIntent.putExtra("position", position);
                     setResult(RESULT_OK, resultIntent);
+
                     finish();
                 } catch(JSONException jsone){
                     Log.e("post_request", "no events object returned from db after post request");
@@ -270,11 +290,13 @@ public class EventFormActivity extends AppCompatActivity implements DatePickerDi
     public void submit(View view){
         String url = "https://spotify-calendar-backend.herokuapp.com/api/events";
         switch (mode){
-            case PUT_MODE:
-                sendEvent(Request.Method.PUT, url);
+            case POST_MODE:
+                sendEvent(Request.Method.POST, url);
+                break;
             case PATCH_MODE:
                 url = String.format(Locale.US, "%s/%d", url, id);
-                sendEvent(Request.Method.PUT, url);
+                sendEvent(Request.Method.PATCH, url);
+                break;
         }
     }
 

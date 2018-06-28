@@ -17,6 +17,7 @@ import com.baoyz.swipemenulistview.SwipeMenuCreator;
 import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.example.android.spotifycalendar.models.Event;
+import com.example.android.spotifycalendar.utils.APIEventUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ public class DayActivity extends AppCompatActivity {
     private ArrayList<Event> Events;
     private TextView tvDate;
     final private int POST_EVENT_REQUEST_CODE = 1;
+    final private int PATCH_EVENT_REQUEST_CODE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,36 +53,25 @@ public class DayActivity extends AppCompatActivity {
 
         @Override
         public void create(SwipeMenu menu) {
-            // create "open" item
-            SwipeMenuItem openItem = new SwipeMenuItem(
+            SwipeMenuItem editItem = new SwipeMenuItem(
                     getApplicationContext());
-            // set item background
-            openItem.setBackground(new ColorDrawable(Color.rgb(0xcc, 0x99,
+            editItem.setBackground(new ColorDrawable(Color.rgb(0xcc, 0x99,
                     0x00)));
-            // set item width
-            openItem.setWidth(200);
-            // set item title
-            openItem.setTitle("Edit");
-            // set item title fontsize
-            openItem.setTitleSize(18);
-            // set item title font color
-            openItem.setTitleColor(Color.WHITE);
-            // add to menu
-            menu.addMenuItem(openItem);
+            editItem.setWidth(300);
+            editItem.setTitle("Edit");
+            editItem.setTitleSize(18);
+            editItem.setTitleColor(Color.WHITE);
 
-            // create "delete" item
             SwipeMenuItem deleteItem = new SwipeMenuItem(
                     getApplicationContext());
-            // set item background
             deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
                     0x3F, 0x25)));
-            // set item width
-            deleteItem.setWidth(250);
+            deleteItem.setWidth(300);
             deleteItem.setTitle("Delete");
             deleteItem.setTitleSize(18);
             deleteItem.setTitleColor(Color.WHITE);
-            // set a icon
-            // add to menu
+
+            menu.addMenuItem(editItem);
             menu.addMenuItem(deleteItem);
         }
     };
@@ -95,10 +87,10 @@ public class DayActivity extends AppCompatActivity {
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                 switch (index) {
                     case 0:
-                        Log.d("swipe", "onMenuItemClick: clicked item " + index);
+                        updateTask(position);
                         break;
                     case 1:
-                        Log.d("swipe", "onMenuItemClick: clicked item " + index);
+                        deleteTask(position);
                         break;
                 }
                 // false : close the menu; true : not close the menu
@@ -147,8 +139,22 @@ public class DayActivity extends AppCompatActivity {
         }
     }
 
+    public void deleteTask(int position) {
+        APIEventUtil.deleteEvent(Events.get(position).getID(), this);
+        Events.remove(position);
+    }
+
+    public void updateTask (int position) {
+        Intent intent = new Intent(this, EventFormActivity.class);
+        intent.putExtra("mode", EventFormActivity.PATCH_MODE);
+        intent.putExtra("event", Events.get(position));
+        intent.putExtra("position", position);
+        startActivityForResult(intent, PATCH_EVENT_REQUEST_CODE);
+    }
+
     public void createNewTask (View view) {
         Intent intent = new Intent(this, EventFormActivity.class);
+        intent.putExtra("mode", EventFormActivity.POST_MODE);
         intent.putExtra("currentDate", TargetDate);
         startActivityForResult(intent, POST_EVENT_REQUEST_CODE);
     }
@@ -159,6 +165,18 @@ public class DayActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK){
                 Event event = data.getParcelableExtra("event");
                 Events.add(event);
+                refreshList();
+            }
+        }
+
+        if(requestCode == PATCH_EVENT_REQUEST_CODE) {
+            if(resultCode == RESULT_OK){
+                Event event = data.getParcelableExtra("event");
+                int position = data.getIntExtra("position", -1);
+                if(position != -1){
+                    Events.remove(position);
+                    Events.add(event);
+                }
                 refreshList();
             }
         }

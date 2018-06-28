@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">SpotifyCalendar</string>
     <string name="title_activity_apitest">APITestActivity</string>
+    <string name="post_success">Event Added</string>
+    <string name="patch_success">Event Updated</string>
+
 </resources>

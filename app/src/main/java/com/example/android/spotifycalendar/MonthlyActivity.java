@@ -97,7 +97,7 @@ public class MonthlyActivity extends AppCompatActivity {
             }
         }
 
-        RecyclerView month = (RecyclerView) findViewById(R.id.recyclerview_id);
+        RecyclerView month = findViewById(R.id.recyclerview_id);
         RecyclerViewAdapter monthlyAdapter = new RecyclerViewAdapter(this, listDay);
 
         month.setLayoutManager(new GridLayoutManager(this, 7));

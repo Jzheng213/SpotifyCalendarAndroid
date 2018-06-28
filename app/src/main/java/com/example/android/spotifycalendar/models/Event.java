@@ -75,6 +75,9 @@ public class Event implements Parcelable {
         }
     };
 // parcelable end
+    public int getID(){
+        return this.id;
+    }
 
     public String getTitle() {
         return this.title;
