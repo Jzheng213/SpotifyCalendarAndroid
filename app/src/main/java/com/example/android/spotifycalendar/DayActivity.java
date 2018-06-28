@@ -3,6 +3,7 @@ package com.example.android.spotifycalendar;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,11 +24,12 @@ import com.baoyz.swipemenulistview.SwipeMenuListView;
 import com.example.android.spotifycalendar.models.Event;
 import com.example.android.spotifycalendar.utils.APIEventUtil;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class DayActivity extends AppCompatActivity {
-
+    private DateFormat dayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
     private String TargetDate;
     private ArrayList<Event> Events;
     private TextView tvDate;
@@ -57,8 +61,44 @@ public class DayActivity extends AppCompatActivity {
         
         eventListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Toast.makeText(DayActivity.this, Events.get(position).getTitle(), Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
+                Event event = Events.get(position);
+                final AlertDialog.Builder mBuilder = new AlertDialog.Builder(DayActivity.this);
+                View mView = getLayoutInflater().inflate(R.layout.dialog_show_task, null);
+                TextView title = mView.findViewById(R.id.show_title_id);
+                TextView description = mView.findViewById(R.id.show_description_id);
+                TextView start_time = mView.findViewById(R.id.show_start_time_id);
+                TextView end_time = mView.findViewById(R.id.show_end_time_id);
+
+                title.setText(event.getTitle());
+                description.setText(event.getDescription());
+                start_time.setText(String.format("Start: %s", dayFormat.format(event.getStartTime().getTime())));
+                end_time.setText(String.format("End: %s", dayFormat.format(event.getEndTime().getTime())));
+
+                Button edit = mView.findViewById(R.id.show_edit_button_id);
+                Button delete = mView.findViewById(R.id.show_delete_button_id);
+
+                mBuilder.setView(mView);
+                final AlertDialog dialog = mBuilder.create();
+                dialog.show();
+
+
+                edit.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view){
+                        updateTask(position);
+                        dialog.dismiss();
+                    }
+                });
+
+                delete.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        deleteTask(position);
+                        dialog.dismiss();
+                    }
+                });
+
             }
         });
     }
@@ -105,6 +145,7 @@ public class DayActivity extends AppCompatActivity {
     public void deleteTask(int position) {
         APIEventUtil.deleteEvent(Events.get(position).getID(), this);
         Events.remove(position);
+        refreshList();
     }
 
     public void updateTask (int position) {

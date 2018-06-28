@@ -22,8 +22,7 @@ public class APIEventUtil {
                 {
                     @Override
                     public void onResponse(String response) {
-                        // response
-                        Toast.makeText(context, response, Toast.LENGTH_LONG).show();
+                        Log.d("delete_request", response);
                     }
                 },
                 new Response.ErrorListener()
