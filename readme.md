@@ -34,7 +34,16 @@
 - [x] DELETE /events/:id, deletes an event
 - [x] PUT/events/:id, updates an existing event
 
+# Monthly View
+![Alt text](https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/monthly.png "Optional Title")
+
+# Daily View
+![Alt text](https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/Daily.png "Optional Title")
+
+# Show Page
+![Alt text](https://github.com/Jzheng213/SpotifyCalendarAndroid/blob/master/Show.png "Optional Title")
 # TODO
+- [ ] Deploy to google store
 - [ ] Handle events spanning multiple days
 - [ ] Have a local cache to save events for offline usage
 - [ ] Refactor code modularize & follow OOP principles
