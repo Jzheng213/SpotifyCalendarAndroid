@@ -47,5 +47,6 @@
 - [ ] Deploy to google store
 - [ ] Handle events spanning multiple days
 - [ ] Have a local cache to save events for offline usage
-- [ ] Refactor code modularize & follow OOP principles
+- [ ] Refactor: use android replace string with android string resources
+- [ ] Refactor: code modularize & follow OOP principles
 - [ ] Clean up any code smells
