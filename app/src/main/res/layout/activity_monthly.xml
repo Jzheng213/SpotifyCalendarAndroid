@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MonthlyActivity">
+    tools:context=".views.MonthlyActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -13,11 +13,11 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <Button
-                android:id="@+id/prev_button_id"
-                android:layout_height="wrap_content"
+                android:id="@+id/prev_month_id"
                 android:layout_width="wrap_content"
-                android:onClick="prev_month"
+                android:layout_height="wrap_content"
                 android:text="prev" />
             <TextView
                 android:id="@+id/month_id"
@@ -27,11 +27,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"/>
+
             <Button
                 android:id="@+id/next_month_id"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:onClick="next_month"
+                android:layout_height="wrap_content"
                 android:text="next" />
         </LinearLayout>
         <LinearLayout

@@ -1,4 +1,4 @@
-package com.example.android.spotifycalendar;
+package com.example.android.spotifycalendar.views;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -17,6 +17,7 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.android.spotifycalendar.R;
 import com.example.android.spotifycalendar.models.Event;
 import com.example.android.spotifycalendar.utils.JSONHelper;
 import com.example.android.spotifycalendar.utils.VolleySingleton;

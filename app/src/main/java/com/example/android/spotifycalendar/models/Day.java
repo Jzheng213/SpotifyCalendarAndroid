@@ -8,17 +8,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 public class Day {
-    private int monthNum;
     private Calendar date;
     private ArrayList<Event> Events;
-    private int dayNum;
-    private int year;
 
     public Day(Calendar date, ArrayList<Event> events){
         this.date = date;
-        monthNum = date.get(Calendar.MONTH);
-        dayNum = date.get(Calendar.DAY_OF_MONTH);
-        year = date.get(Calendar.YEAR);
         Events = events;
     }
 

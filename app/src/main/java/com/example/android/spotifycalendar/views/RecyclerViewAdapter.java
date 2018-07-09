@@ -1,4 +1,4 @@
-package com.example.android.spotifycalendar;
+package com.example.android.spotifycalendar.views;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.spotifycalendar.R;
 import com.example.android.spotifycalendar.models.Day;
 import com.example.android.spotifycalendar.models.Event;
 
