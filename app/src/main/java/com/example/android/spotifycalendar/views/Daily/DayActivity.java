@@ -1,30 +1,35 @@
-package com.example.android.spotifycalendar.views;
+package com.example.android.spotifycalendar.views.Daily;
 
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.spotifycalendar.R;
+import com.example.android.spotifycalendar.contracts.DailyContract;
 import com.example.android.spotifycalendar.models.Event;
-import com.example.android.spotifycalendar.utils.APIEventUtil;
+import com.example.android.spotifycalendar.presenters.DailyPresenter;
+import com.example.android.spotifycalendar.views.EventForm.EventFormActivity;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class DayActivity extends AppCompatActivity {
+public class DayActivity extends AppCompatActivity
+        implements DailyContract.View{
+
+    private DailyContract.Presenter mPresenter;
+
     private DateFormat dayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
-    private String TargetDate;
-    private ArrayList<Event> Events;
+    private String targetDate;
+    private ArrayList<Event> events;
     private TextView tvDate;
+
     final private int POST_EVENT_REQUEST_CODE = 1;
     final private int PATCH_EVENT_REQUEST_CODE = 2;
 
@@ -33,28 +38,32 @@ public class DayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_day);
 
-
-        Intent intent = getIntent();
-        TargetDate = intent.getStringExtra("date");
-        if (intent.getExtras() != null){
-            Events = (ArrayList<Event>) intent.getExtras().getSerializable("events");
-        }
-
-        tvDate = findViewById(R.id.daycard_date_id);
-        tvDate.setText(TargetDate);
+        mPresenter = new DailyPresenter(this);
+        initViews();
         refreshList();
-
+    }
+    
+    private void initViews(){
+        Intent intent = getIntent();
+        targetDate = intent.getStringExtra("date");
+        if (intent.getExtras() != null){
+            events = (ArrayList<Event>) intent.getExtras().getSerializable("events");
+        }
+        
+        tvDate = findViewById(R.id.daycard_date_id);
+        tvDate.setText(targetDate);
     }
 
+    @Override
     public void refreshList(){
         ListView eventListView = findViewById(R.id.daycard_events_id);
-        EventsAdapter eventsAdapter = new EventsAdapter();
+        EventsAdapter eventsAdapter = new EventsAdapter(this, events);
         eventListView.setAdapter(eventsAdapter);
-        
+
         eventListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
-                Event event = Events.get(position);
+                Event event = events.get(position);
                 final AlertDialog.Builder mBuilder = new AlertDialog.Builder(DayActivity.this);
                 View mView = getLayoutInflater().inflate(R.layout.dialog_show_task, null);
                 TextView title = mView.findViewById(R.id.show_title_id);
@@ -73,7 +82,6 @@ public class DayActivity extends AppCompatActivity {
                 mBuilder.setView(mView);
                 final AlertDialog dialog = mBuilder.create();
                 dialog.show();
-
 
                 edit.setOnClickListener(new View.OnClickListener(){
                     @Override
@@ -95,55 +103,14 @@ public class DayActivity extends AppCompatActivity {
         });
     }
 
-
-
-    class EventsAdapter extends BaseAdapter{
-        @Override
-        public int getCount() {
-            return Events != null ? Events.size() : 0;
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            view = getLayoutInflater().inflate(R.layout.day_event_item,null);
-
-            TextView title = view.findViewById(R.id.event_title_id);
-            title.setText(Events.get(i).getTitle());
-            TextView description = view.findViewById(R.id.event_description_id);
-            description.setText(Events.get(i).getDescription());
-
-            TextView startTime = view.findViewById(R.id.start_time_id);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
-
-            startTime.setText(dateFormat.format(Events.get(i).getStartTime().getTime()));
-
-            TextView endTime = view.findViewById(R.id.end_time_id);
-            endTime.setText(dateFormat.format(Events.get(i).getEndTime().getTime()));
-
-            return view;
-        }
-    }
-
-    public void deleteTask(int position) {
-        APIEventUtil.deleteEvent(Events.get(position).getID(), this);
-        Events.remove(position);
-        refreshList();
+    private void deleteTask(int position){
+        mPresenter.deleteTask(this, position);
     }
 
     public void updateTask (int position) {
         Intent intent = new Intent(this, EventFormActivity.class);
         intent.putExtra("mode", EventFormActivity.PATCH_MODE);
-        intent.putExtra("event", Events.get(position));
+        intent.putExtra("event", events.get(position));
         intent.putExtra("position", position);
         startActivityForResult(intent, PATCH_EVENT_REQUEST_CODE);
     }
@@ -151,7 +118,7 @@ public class DayActivity extends AppCompatActivity {
     public void createNewTask (View view) {
         Intent intent = new Intent(this, EventFormActivity.class);
         intent.putExtra("mode", EventFormActivity.POST_MODE);
-        intent.putExtra("currentDate", TargetDate);
+        intent.putExtra("currentDate", targetDate);
         startActivityForResult(intent, POST_EVENT_REQUEST_CODE);
     }
 
@@ -160,7 +127,7 @@ public class DayActivity extends AppCompatActivity {
         if(requestCode == POST_EVENT_REQUEST_CODE) {
             if(resultCode == RESULT_OK){
                 Event event = data.getParcelableExtra("event");
-                Events.add(event);
+                events.add(event);
                 refreshList();
             }
         }
@@ -170,8 +137,8 @@ public class DayActivity extends AppCompatActivity {
                 Event event = data.getParcelableExtra("event");
                 int position = data.getIntExtra("position", -1);
                 if(position != -1){
-                    Events.remove(position);
-                    Events.add(event);
+                    events.remove(position);
+                    events.add(event);
                 }
                 refreshList();
             }

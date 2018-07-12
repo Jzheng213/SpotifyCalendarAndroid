@@ -1,4 +1,4 @@
-package com.example.android.spotifycalendar.views;
+package com.example.android.spotifycalendar.views.Monthly;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
