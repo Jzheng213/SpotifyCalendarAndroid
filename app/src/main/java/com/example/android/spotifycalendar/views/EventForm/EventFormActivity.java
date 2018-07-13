@@ -12,31 +12,22 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.android.spotifycalendar.R;
 import com.example.android.spotifycalendar.contracts.EventFormContract;
+import com.example.android.spotifycalendar.models.Event;
 import com.example.android.spotifycalendar.presenters.EventFormPresenter;
 import com.example.android.spotifycalendar.utils.JSONHelper;
-import com.example.android.spotifycalendar.utils.VolleySingleton;
+import com.koushikdutta.async.http.body.JSONObjectBody;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.example.android.spotifycalendar.contracts.EventFormContract.END_TIME;
 import static com.example.android.spotifycalendar.contracts.EventFormContract.START_TIME;
+import static com.example.android.spotifycalendar.contracts.EventFormContract.POST_MODE;
+import static com.example.android.spotifycalendar.contracts.EventFormContract.PUT_MODE;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 public class EventFormActivity
         extends AppCompatActivity
@@ -45,16 +36,12 @@ public class EventFormActivity
         EventFormContract.View{
 
     private int mode;
-    final public static int POST_MODE = 0;
-    final public static int PATCH_MODE = 1;
 
     EventFormContract.Presenter mPresenter;
     private int position;
     private TextView title, description;
-    private String currentDateString;
     TextView startTime, endTime;
     private int selectedTime;
-    private DateFormat dayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,20 +55,12 @@ public class EventFormActivity
 
         initViews();
 
-        if (mode == PATCH_MODE) mPresenter.setEvent(intent.getParcelableExtra("event"));
+        if (mode == PUT_MODE) mPresenter.setEvent(intent.getParcelableExtra("event"));
 
 
         if(mode == POST_MODE){
-            currentDateString = intent.getStringExtra("currentDate");
-            Date currentDate;
-            try{
-                currentDate = dayFormat.parse(currentDateString);
-            } catch(ParseException pe){
-                Log.e("parsing_current_date", "failed parsing: " + pe.getMessage());
-                currentDate = Calendar.getInstance().getTime();
-            }
-
-            mPresenter.loadInitialTime(currentDate);
+            mPresenter.setNewEvent(intent.getStringExtra("currentDate"));
+            mPresenter.loadInitialTime();
         } else {
             position = intent.getIntExtra("position", -1);
             mPresenter.loadEntries();
@@ -115,10 +94,19 @@ public class EventFormActivity
     };
 
     @Override
+    public CharSequence getTitleText(){
+        return this.title.getText();
+    }
+
+    @Override
     public void setDescription(String description){
         this.description.setText(description);
     }
 
+    @Override
+    public CharSequence getDescriptionText(){
+        return this.description.getText();
+    }
     @Override
     public void setTime(String time, int targetTime) {
         switch (targetTime) {
@@ -131,13 +119,17 @@ public class EventFormActivity
         }
     }
 
-    private void beforeDateSet(int cal){
+    @Override
+    public void showToast(String msg){
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
 
+    private void beforeDateSet(int cal){
         int year = mPresenter.getCalInfo(cal, Calendar.YEAR);
         int month = mPresenter.getCalInfo(cal, Calendar.MONTH);
         int day = mPresenter.getCalInfo(cal, Calendar.DAY_OF_MONTH);
 
-        this.selectedTime = START_TIME;
+        this.selectedTime = cal;
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 EventFormActivity.this,
@@ -147,6 +139,7 @@ public class EventFormActivity
                 day);
         datePickerDialog.show();
     }
+
 
     public void onDateSet(DatePicker datePicker, int year, int month, int day){
         mPresenter.setCal(selectedTime, year, month, day);
@@ -169,8 +162,6 @@ public class EventFormActivity
         mPresenter.loadTime(selectedTime);
     }
 
-
-
     @Override
     public void onBackPressed(){
         cancelSubmit();
@@ -185,19 +176,30 @@ public class EventFormActivity
         finish();
     }
     //TODO: Create an onclick switch to trigger methods
-    
-    //TODO: move to presentation 
+
     public void submit(View view){
-        String url = "https://spotify-calendar-backend.herokuapp.com/api/events";
-        switch (mode){
-            case POST_MODE:
-                sendEvent(Request.Method.POST, url);
-                break;
-            case PATCH_MODE:
-                url = String.format(Locale.US, "%s/%d", url, id);
-                sendEvent(Request.Method.PATCH, url);
-                break;
+        mPresenter.saveEvent(this, mode);
+    }
+
+    @Override
+    public void successfulResponse(int method, JSONObject response){
+        Intent resultIntent = new Intent();
+        try {
+            Event event = JSONHelper.createEventObject(response.getJSONObject("event"));
+            resultIntent.putExtra("event", event);
+            if (position != -1) resultIntent.putExtra("position", position);
+            setResult(RESULT_OK, resultIntent);
+            finish();
+        } catch (JSONException jsone) {
+            Log.e("post_request", "no events object returned from db after post request");
+            setResult(RESULT_CANCELED);
+            finish();
         }
     }
 
+    @Override
+    public void failedResponse(int method, String msg){
+        String toastMessage = String.format("upload failed: %s", msg);
+        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
+    }
 }

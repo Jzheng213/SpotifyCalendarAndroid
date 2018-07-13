@@ -1,47 +1,40 @@
 package com.example.android.spotifycalendar.presenters;
 
-import android.content.Intent;
+import android.content.Context;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.example.android.spotifycalendar.R;
 import com.example.android.spotifycalendar.contracts.EventFormContract;
 import com.example.android.spotifycalendar.models.Event;
-import com.example.android.spotifycalendar.utils.JSONHelper;
-import com.example.android.spotifycalendar.utils.VolleySingleton;
-import com.example.android.spotifycalendar.views.EventForm.EventFormActivity;
+import com.example.android.spotifycalendar.utils.APIEventUtil;
+import com.example.android.spotifycalendar.utils.ResponseListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.example.android.spotifycalendar.contracts.EventFormContract.END_TIME;
+import static com.example.android.spotifycalendar.contracts.EventFormContract.POST_MODE;
+import static com.example.android.spotifycalendar.contracts.EventFormContract.PUT_MODE;
 import static com.example.android.spotifycalendar.contracts.EventFormContract.START_TIME;
 
 public class EventFormPresenter implements  EventFormContract.Presenter{
 
     private Calendar startCal, endCal;
     private DateFormat dfs = new SimpleDateFormat("EEE, MMM, dd yyyy hh:mm a");
+    private DateFormat dayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy");
+
     private Event event;
 
     private EventFormContract.View mView;
 
     public EventFormPresenter(EventFormContract.View view){
         mView = view;
-        dfs.setTimeZone(startCal.getTimeZone());
     }
-
 
     @Override
     public void setEvent(Object event) {
@@ -53,10 +46,20 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
         return event;
     }
 
-    public void loadInitialTime(Date currentDate){
+    @Override
+    public void setNewEvent(String date){
+
+        Date currentDate;
+        try{
+            currentDate = dayFormat.parse(date);
+        } catch(ParseException pe){
+            Log.e("parsing_current_date", "failed parsing: " + pe.getMessage());
+            currentDate = Calendar.getInstance().getTime();
+        }
 
         startCal = Calendar.getInstance();
         endCal = Calendar.getInstance();
+        dfs.setTimeZone(startCal.getTimeZone());
 
         int currentHour = startCal.get(Calendar.HOUR_OF_DAY);
         if (startCal.get(Calendar.MINUTE) != 0) currentHour++;
@@ -67,20 +70,18 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
         startCal.add(Calendar.HOUR, currentHour);
         endCal.add(Calendar.HOUR, currentHour + 1);
 
-        mView.setTime(dfs.format(startCal.getTime()), START_TIME);
-        mView.setTime(dfs.format(endCal.getTime()), END_TIME);
+        this.event = new Event("", "", startCal,endCal);
     }
 
-    @Override
-    public void setTitle(){
-
+    public void loadInitialTime(){
+        mView.setTime(dfs.format(startCal.getTime()), START_TIME);
+        mView.setTime(dfs.format(endCal.getTime()), END_TIME);
     }
 
     @Override
     public void loadEntries(){
         mView.setTitle(event.getTitle());
         mView.setDescription(event.getDescription());
-
 
         startCal = event.getStartTime();
         endCal = event.getEndTime();
@@ -91,7 +92,14 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
 
     @Override
     public void loadTime(int targetTime){
-        mView.setTime(dfs.format(startCal.getTime()), targetTime);
+        switch (targetTime){
+            case START_TIME:
+                mView.setTime(dfs.format(startCal.getTime()), START_TIME);
+                break;
+            case END_TIME:
+                mView.setTime(dfs.format(endCal.getTime()), END_TIME);
+                break;
+        }
     }
 
     @Override
@@ -130,16 +138,15 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
         }
     }
 
-
     private JSONObject eventJsonBuilder(){
-        TextView title = findViewById(R.id.post_title_id);
-        TextView description = findViewById(R.id.post_description_id);
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         JSONObject json = new JSONObject();
         JSONObject event = new JSONObject();
+
         try {
-            event.put("title", title.getText());
-            event.put("description", description.getText());
+            event.put("title", mView.getTitleText());
+            event.put("description", mView.getDescriptionText());
             event.put("start_time", sdf.format(startCal.getTime()));
             event.put("end_time", sdf.format(endCal.getTime()));
             event.put("all_day", false);
@@ -151,16 +158,15 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
         return json;
     }
 
-    //TODO: move validations to presentation
     private boolean validateAll(){
-        return  validateNotEmptyString("Title", title) &&
+        return  validateNotEmptyString("Title", mView.getTitleText()) &&
                 validateEndDateAfterStartDate() &&
                 validateNotSameDay();
     }
 
-    private boolean validateNotEmptyString(String title, TextView target){
-        if( target.getText().length() == 0){
-            Toast.makeText(this, String.format( "%s can't be blank", title), Toast.LENGTH_SHORT).show();
+    private boolean validateNotEmptyString(String title, CharSequence text){
+        if( text.length() == 0){
+            mView.showToast(String.format( "%s can't be blank", title));
             return false;
         }
         return true;
@@ -168,7 +174,7 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
 
     private boolean validateEndDateAfterStartDate(){
         if( startCal.compareTo(endCal) != -1){
-            Toast.makeText(this, "Your start time can't be greater than your end time", Toast.LENGTH_SHORT).show();
+            mView.showToast("Your start time can't be greater than your end time");
             return false;
         }
         return true;
@@ -176,61 +182,51 @@ public class EventFormPresenter implements  EventFormContract.Presenter{
 
     private boolean validateNotSameDay(){
         if (!dayFormat.format(startCal.getTime()).equals(dayFormat.format(endCal.getTime()))) {
-            Toast.makeText(this, "Events can't span across multiple days", Toast.LENGTH_SHORT).show();
+            mView.showToast("Events can't span across multiple days");
             return false;
         }
         return true;
     }
 
-    //TODO: move to APIEvents
-    private boolean sendEvent(int method, String url){
-
-        if(!validateAll()) return false;
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                method,
-                url,
-                eventJsonBuilder(),
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        String toastResponse = (mode == POST_MODE) ? "event added" : "event updated";
-                        Log.e("post_request", "successful request");
-                        Toast.makeText(EventFormActivity.this, toastResponse, Toast.LENGTH_SHORT).show();
-                        Intent resultIntent = new Intent();
-                        try{
-                            Event event = JSONHelper.createEventObject(response.getJSONObject("event"));
-                            resultIntent.putExtra("event", event);
-                            if(position != -1) resultIntent.putExtra("position", position);
-                            setResult(RESULT_OK, resultIntent);
-
-                            finish();
-                        } catch(JSONException jsone){
-                            Log.e("post_request", "no events object returned from db after post request");
-                            setResult(RESULT_CANCELED);
-                            finish();
+    @Override
+    public void saveEvent(Context context, int mode){
+        if (validateAll()) {
+            switch (mode) {
+                case POST_MODE:
+                    APIEventUtil.postEvent(context, eventJsonBuilder(), new ResponseListener() {
+                        @Override
+                        public void onResponse(Object response) {
+                            JSONObject jsonResponse = (JSONObject) response;
+                            mView.successfulResponse(POST_MODE, jsonResponse);
                         }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("post_request", "failed request");
-            }
-        }){
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                return super.getParams();
-            }
 
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Content-Type", "application/json; charset=utf-8");
-                return headers;
-            }
-        };
+                        @Override
+                        public void onError(String message) {
+                            Log.e("post_request", "failed request");
+                            mView.failedResponse(POST_MODE, message);
+                        }
+                    });
+                    break;
+                case PUT_MODE:
+                    APIEventUtil.putEvent(context, eventJsonBuilder(), event.getID(), new ResponseListener() {
+                        @Override
+                        public void onResponse(Object response) {
+                            JSONObject jsonResponse = (JSONObject) response;
+                            Log.e("put_request", "successful request");
+                            mView.showToast("event updated");
+                            mView.successfulResponse(PUT_MODE, jsonResponse);
+                        }
 
-        VolleySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest);
-        return true;
+                        @Override
+                        public void onError(String message) {
+                            Log.e("put_request", "failed request");
+                            mView.showToast("event updated");
+                            mView.failedResponse(PUT_MODE, message);
+                        }
+                    });
+                    break;
+            }
+        }
     }
+
 }
